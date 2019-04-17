@@ -1,10 +1,14 @@
 package com.ffi.onedriveservice.service;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+import org.aspectj.weaver.ast.Literal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +16,17 @@ import com.ffi.onedriveservice.exception.ApplicationBusinessException;
 import com.microsoft.graph.concurrency.ChunkedUploadProvider;
 import com.microsoft.graph.concurrency.IProgressCallback;
 import com.microsoft.graph.core.ClientException;
+import com.microsoft.graph.core.IBaseClient;
+import com.microsoft.graph.models.extensions.Drive;
 import com.microsoft.graph.models.extensions.DriveItem;
 import com.microsoft.graph.models.extensions.DriveItemUploadableProperties;
 import com.microsoft.graph.models.extensions.IGraphServiceClient;
 import com.microsoft.graph.models.extensions.UploadSession;
+import com.microsoft.graph.requests.extensions.DriveRequestBuilder;
+import com.microsoft.graph.requests.extensions.IDriveItemRequestBuilder;
+import com.microsoft.graph.requests.extensions.IDriveRequestBuilder;
+import com.microsoft.graph.requests.extensions.IListItemRequestBuilder;
+import com.microsoft.graph.requests.extensions.IListRequestBuilder;
 
 @Service
 public class OneDriveServiceImpl implements IOneDrive {
@@ -63,7 +74,7 @@ public class OneDriveServiceImpl implements IOneDrive {
 				}
 			};
 
-			UploadSession uploadSession = graphServiceClient.me().drive().root().itemWithPath("SME_Template_v0.21_updated.xlsx")
+			UploadSession uploadSession = graphServiceClient.me().drive().root().itemWithPath(new File(filePath).getName())
 					.createUploadSession(new DriveItemUploadableProperties()).buildRequest().post();
 			ChunkedUploadProvider<DriveItem> chunkedUploadProvider = new ChunkedUploadProvider<>(uploadSession,
 					graphServiceClient, uploadFile, fileSize, DriveItem.class);
